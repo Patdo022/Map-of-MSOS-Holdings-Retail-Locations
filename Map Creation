@@ -1,0 +1,180 @@
+import pandas as pd
+import folium
+from folium import plugins
+import webbrowser
+import branca.colormap 
+from collections import defaultdict
+
+
+df2 = pd.read_csv('PublicWeedStockLocations.csv')
+df3 = pd.read_csv('CookiesCoordinates.csv')
+df3['ticker'] = 'cookies'
+df2['lat'] = df2['lat'].astype(float)
+df2['lng'] = df2['lng'].astype(float)
+colors = ['red','blue','gray','darkred','lightred','orange','beige','green','darkgreen','lightgreen','darkblue','lightblue','purple','darkpurple','pink','cadetblue','lightgray','black']
+def add_categorical_legend(folium_map, title, colors, labels):
+    if len(colors) != len(labels):
+        raise ValueError("colors and labels must have the same length.")
+    color_by_label = dict(zip(labels, colors))
+    legend_categories = ""     
+    for label, color in color_by_label.items():
+        legend_categories += f"<li><span style='background:{color}'></span>{label}</li>"
+    legend_html = f"""
+    <div id='maplegend' class='maplegend'>
+      <div class='legend-title'>{title}</div>
+      <div class='legend-scale'>
+        <ul class='legend-labels'>
+        {legend_categories}
+        </ul>
+      </div>
+    </div>
+    """
+    script = f"""
+        <script type="text/javascript">
+        var oneTimeExecution = (function() {{
+                    var executed = false;
+                    return function() {{
+                        if (!executed) {{
+                             var checkExist = setInterval(function() {{
+                                       if ((document.getElementsByClassName('leaflet-top leaflet-right').length) || (!executed)) {{
+                                          document.getElementsByClassName('leaflet-top leaflet-right')[0].style.display = "flex"
+                                          document.getElementsByClassName('leaflet-top leaflet-right')[0].style.flexDirection = "column"
+                                          document.getElementsByClassName('leaflet-top leaflet-right')[0].innerHTML += `{legend_html}`;
+                                          clearInterval(checkExist);
+                                          executed = true;
+                                       }}
+                                    }}, 100);
+                        }}
+                    }};
+                }})();
+        oneTimeExecution()
+        </script>
+      """
+    css = """
+    <style type='text/css'>
+      .maplegend {
+        z-index:9999;
+        float:right;
+        background-color: rgba(255, 255, 255, 1);
+        border-radius: 5px;
+        border: 2px solid #bbb;
+        padding: 10px;
+        font-size:12px;
+        positon: relative;
+      }
+      .maplegend .legend-title {
+        text-align: left;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 90%;
+        }
+      .maplegend .legend-scale ul {
+        margin: 0;
+        margin-bottom: 5px;
+        padding: 0;
+        float: left;
+        list-style: none;
+        }
+      .maplegend .legend-scale ul li {
+        font-size: 80%;
+        list-style: none;
+        margin-left: 0;
+        line-height: 18px;
+        margin-bottom: 2px;
+        }
+      .maplegend ul.legend-labels li span {
+        display: block;
+        float: left;
+        height: 16px;
+        width: 30px;
+        margin-right: 5px;
+        margin-left: 0;
+        border: 0px solid #ccc;
+        }
+      .maplegend .legend-source {
+        font-size: 80%;
+        color: #777;
+        clear: both;
+        }
+      .maplegend a {
+        color: #777;
+        }
+    </style>
+    """
+    folium_map.get_root().header.add_child(folium.Element(script + css))
+    return folium_map
+m = folium.Map(location=[(df2['lat'].max()),(df2['lng'].min())])
+for index, location_info in df2[df2['ticker']=='gtbif'].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[0])).add_to(m)
+for index, location_info in df2[df2['ticker']=='TCNNF'].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[1])).add_to(m)
+for index, location_info in df2[df2['ticker']=='CURLF'].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[2])).add_to(m)
+for index, location_info in df2[df2['ticker']=='VRNOF'].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[3])).add_to(m)
+for index, location_info in df2[df2['ticker']=='GLASF'].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[4])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['CRLBF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[5])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['AYRWF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[6])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['CCHWF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[7])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['TRSSF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[8])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['GDNSF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[9])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['ACRHF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[10])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['JUSHF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[11])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['SHWZ'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[12])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['AAWH'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[13])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['FFNTF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[14])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['PLNHF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info["ticker"]), icon=folium.Icon(color=colors[15])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['CXXIF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info['ticker']), icon=folium.Icon(color=colors[16])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['GRAMF'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info['ticker']), icon=folium.Icon(color=colors[17])).add_to(m)
+for index, location_info in df2[df2['ticker'].isin(['MRMD'])].iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info['ticker']), icon=folium.Icon(icon_color='#131E21',color=colors[1])).add_to(m)
+for index, location_info in df3.iterrows():
+    folium.Marker([location_info["lat"], location_info["lng"]], popup=(location_info['ticker']), icon=folium.Icon(icon_color='#131E21',color=colors[2])).add_to(m)
+m = add_categorical_legend(m, 'Ticker: # of Locations', 
+colors = (colors[0],colors[1],colors[2],colors[3],colors[4],colors[5],colors[6],colors[7],colors[8],colors[9],colors[10],colors[11],colors[12],colors[13],colors[14],colors[15],colors[16],colors[17],colors[1],colors[2])
+,labels = (
+'GTBIF'+':'+str(df2[df2['ticker'].isin(['gtbif'])]['ticker'].count()),
+'TCNNF'+':'+str(df2[df2['ticker'].isin(['TCNNF'])]['ticker'].count()),
+'CURLF'+':'+str(df2[df2['ticker'].isin(['CURLF'])]['ticker'].count()),
+'VRNOF'+':'+str(df2[df2['ticker'].isin(['VRNOF'])]['ticker'].count()),
+'GLASF'+':'+str(df2[df2['ticker'].isin(['GLASF'])]['ticker'].count()),
+'CRLBF'+':'+str(df2[df2['ticker'].isin(['CRLBF'])]['ticker'].count()),
+'AYRWF'+':'+str(df2[df2['ticker'].isin(['AYR'])]['ticker'].count()),
+'CCHWF'+':'+str(df2[df2['ticker'].isin(['CCHWF'])]['ticker'].count()),
+'TRSSF'+':'+str(df2[df2['ticker'].isin(['TRSSF'])]['ticker'].count()),
+'GDNSF'+':'+str(df2[df2['ticker'].isin(['GDNSF'])]['ticker'].count()),
+'ACRHF'+':'+str(df2[df2['ticker'].isin(['ACRHF'])]['ticker'].count()),
+'JUSHF'+':'+str(df2[df2['ticker'].isin(['JUSHF'])]['ticker'].count()),
+'SHWZ'+':'+str(df2[df2['ticker'].isin(['SHWZ'])]['ticker'].count()),
+'AAWH'+':'+str(df2[df2['ticker'].isin(['AAWH'])]['ticker'].count()),
+'FFNTF'+':'+str(df2[df2['ticker'].isin(['FFNTF'])]['ticker'].count()),
+'PLNHF'+':'+str(df2[df2['ticker'].isin(['PLNHF'])]['ticker'].count()),
+'CXXIF'+':'+str(df2[df2['ticker'].isin(['CXXIF'])]['ticker'].count()),
+'GRAMF'+':'+str(df2[df2['ticker'].isin(['GRAMF'])]['ticker'].count()),
+'MRMD'+':'+str(df2[df2['ticker'].isin(['MRMD'])]['ticker'].count()),
+'Cookies'+':'+str(df3['ticker'].count())
+))
+m.save("map_1.html")
+webbrowser.open("map_1.html")
+
+
+
+
+
+
+
+
